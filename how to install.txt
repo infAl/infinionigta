@@ -4,6 +4,11 @@ You can download Simple Mod Loader from github:
 https://github.com/infal/modloader/releases
 
 
-Once you have Simple Mod Loader installed, extract the contents of this zip file to the avorion/data/scripts/mods/ folder. (If the mods folder doesn't exist, just make one)
+This mod also requires the Infinion Corporation mod
+https://github.com/infal/infinion/releases
 
-Now when you start the game, when you're in a ship (not the drone) you will see the Cargo UI icon at the top right automatically.
+
+Once you have Simple Mod Loader and Infinion Corporation installed, extract the contents of this zip file to the avorion/data/scripts/mods/ folder.
+
+
+Now when you find an Ininion Corporation Outpost it will have a dialog option to buy dangerous goods permits, pirates may drop special Cargo Shielding Modules and you will be notified when Military ships are scanning your cargo

@@ -15,7 +15,7 @@ disableMod = false -- [true/false]
 
 
 modName = "Infinion Irregular Goods Transportation Addon"
-modVersion = {major=1, minor=0, revision=0}
+modVersion = {major=1, minor=0, revision=1}
 modDescription = "Irregular Goods Transportation Addon makes it possible for the player to evade detection when transporting illegal, stolen or suspicious goods and to purchase a permit to legally transport dangerous goods.\nThis mod is an addon for the Infinion Corporation mod."
 
 

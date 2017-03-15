@@ -84,7 +84,7 @@ function onSectorEntered(playerIndex, x, y)
 end
 
 function onEntityEntered(entityIndex)
-	Server():broadcastChatMessage("Infinion IGTA", 0, "onEntityEntered")
+	--Server():broadcastChatMessage("Infinion IGTA", 0, "onEntityEntered")
 	onEntityCreate(entityIndex)
 end
 
@@ -103,6 +103,7 @@ function onEntityCreate(entityIndex)
 			
 			local rarity = Rarity(getValueFromDistribution(rarities))
 			Loot(entityIndex):insert(SystemUpgradeTemplate(scriptCargoShield, rarity, random():createSeed()))
+			--Server():broadcastChatMessage("Infinion IGTA", 0, "Added Cargo Shield Loot to Pirate")
 			
 		elseif entity:hasScript("entity/antismuggle.lua") then
 			-- "Brainwashing"

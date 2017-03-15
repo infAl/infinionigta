@@ -32,6 +32,8 @@ local didScanFail
 local scannedPlayer
 local scanFailTicker = 0
 
+local suspicionDetectedTicker = 0
+
 
 -- This function is to allow a few seconds to pass between the player being warned that their ship is
 -- being scanned and being told that the scan failed
@@ -105,6 +107,12 @@ function updateSuspiciousShipDetection(timeStep)
 
             local faction = Faction(ship.factionIndex)
             if valid(faction) and faction.isPlayer then
+			
+				-- Make it so that ships can only be scanned once per 60 seconds
+				local saveValueName = string.format("shipLastScannedAt_%i", ship.index)
+				local playerLastScannedAt = Sector():getValue(saveValueName) or 0
+				if os.time() < playerLastScannedAt + 60 then return end
+				Sector():setValue(saveValueName, os.time())
 
                 if ship:hasComponent(ComponentType.CargoBay) then
 				
@@ -189,12 +197,16 @@ function updateSuspiciousShipDetection(timeStep)
     if suspicion then
         -- register the suspicion
         Sector():setValue(string.format("suspected_by_%i", suspicion.index), self.index)
-    end
-
+	end
 end
 
 function updateSuspicionDetectedBehaviour(timeStep)
     if not suspicion then return end
+	
+	-- Don't run this every second
+	suspicionDetectedTicker = suspicionDetectedTicker + timeStep
+    if suspicionDetectedTicker < scannerTick then return end
+    suspicionDetectedTicker = 5
 
     local self = Entity()
     local sphere = self:getBoundingSphere()
