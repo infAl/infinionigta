@@ -1,8 +1,8 @@
 -- Include Files
 package.path = package.path .. ";data/scripts/mods/?.lua"
-require ("infinionigta/config")
+local Config = require ("infinionigta/config")
 
-if not disableMod then
+if not Config.disableMod then
 
 package.path = package.path .. ";data/scripts/lib/?.lua"
 Dialog = require ("dialogutility")
@@ -13,23 +13,23 @@ require("randomext")
 local buyPermitOptions =
 {
 	{
-		answer = dialogChangedMind,
+		answer = Config.dialogChangedMind,
 		onSelect = "reset"
 	},
 	{
-		answer = dialogBuy5,
+		answer = Config.dialogBuy5,
 		onSelect = "buy5"
 	},
 	{
-		answer = dialogBuy15,
+		answer = Config.dialogBuy15,
 		onSelect = "buy15"
 	},
 	{
-		answer = dialogBuy30,
+		answer = Config.dialogBuy30,
 		onSelect = "buy30"
 	},
 	{
-		answer = dialogBuy60,
+		answer = Config.dialogBuy60,
 		onSelect = "buy60"
 	}
 }
@@ -40,11 +40,11 @@ end
 
 function initialize()
     -- The greeting text
-	InteractionText(Entity().index).text = dialogGreeting
+	InteractionText(Entity().index).text = Config.dialogGreeting
 end
 
 function initUI()
-    ScriptUI():registerInteraction(dialogWantPermit, "onInteract")
+    ScriptUI():registerInteraction(Config.dialogWantPermit, "onInteract")
 end
 
 function onInteract()
@@ -57,7 +57,7 @@ end
 function normalDialog()
     local dialog =
     {
-        text = dialogOfferPermits,
+        text = Config.dialogOfferPermits,
         answers = buyPermitOptions
     }
     return dialog
@@ -66,7 +66,7 @@ end
 function dialog2()
     local dialog =
     {
-        text = dialogOfferDifferentPermit,
+        text = Config.dialogOfferDifferentPermit,
         answers = buyPermitOptions
     }
     ScriptUI():showDialog(dialog, 0)
@@ -88,7 +88,7 @@ function buyMinutes(minutes, fee)
 		if not player:canPay(fee) then
 		
 			local dialog =	{
-						text = dialogTooPoor,
+						text = Config.dialogTooPoor,
 						answers = {{ answer = "Oh...."%_t, onSelect="dialog2"}}
 					}
 			ScriptUI():showDialog(dialog, 0)
@@ -102,10 +102,10 @@ function buyMinutes(minutes, fee)
 	
 	player:pay(fee)
 	
-	if not player:hasScript(scriptGoodsPermit) then
-		player:addScriptOnce(scriptGoodsPermit)
+	if not player:hasScript(Config.scriptGoodsPermit) then
+		player:addScriptOnce(Config.scriptGoodsPermit)
 	end
-	player:invokeFunction(scriptGoodsPermit, "addTime", minutes)
+	player:invokeFunction(Config.scriptGoodsPermit, "addTime", minutes)
 end
 
 

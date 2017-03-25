@@ -12,9 +12,9 @@
 
 -- Include Files
 package.path = package.path .. ";data/scripts/mods/?.lua"
-require ("infinionigta/config")
+local Config = require ("infinionigta/config")
 
-if not disableMod then
+if not Config.disableMod then
 
 
 -- Local Variables
@@ -32,19 +32,19 @@ function updateServer(timestep)
 	
 	-- Let the player know when they log in how long until their permit expires
 	if not onFirstUpdate then
-		player:sendChatMessage(goodsPermit, 3, infoTimeRemainingMS, minutes, seconds)
+		player:sendChatMessage(Config.goodsPermit, 3, Config.infoTimeRemainingMS, minutes, seconds)
 		onFirstUpdate = true
 	end
 	
-	if minutes == 5 and seconds == 0 then
-		player:sendChatMessage(goodsPermit, 3, infoTimeRemainingM, minutes)
-	elseif minutes == 2 and seconds == 0 then
-		player:sendChatMessage(goodsPermit, 3, infoTimeRemainingM, minutes)
-	elseif minutes == 1 and seconds == 0 then
-		player:sendChatMessage(goodsPermit, 3, infoTimeRemainingM, minutes)
-	elseif minutes <= 0 and seconds <= 0 then
-		player:sendChatMessage(goodsPermit, 3, infoTimeExpired)
+	if permitTime < 0 then
+		player:sendChatMessage(Config.goodsPermit, 3, Config.infoTimeExpired)
 		terminate()
+	elseif minutes % Config.updateIntervalMinutes == 0 and seconds <= 9 then
+		player:sendChatMessage(Config.goodsPermit, 3, Config.infoTimeRemainingM, minutes)
+	elseif minutes == 2 and seconds <= 9 then
+		player:sendChatMessage(Config.goodsPermit, 3, Config.infoTimeRemainingM, minutes)
+	elseif minutes == 1 and seconds <= 9 then
+		player:sendChatMessage(Config.goodsPermit, 3, Config.infoTimeRemainingM, minutes)
 	end
 end
 
@@ -90,7 +90,7 @@ function addTime(minutes)
 	local player = Player(callingPlayer)
 
 	local minutes, seconds = getMinutesSeconds(permitTime)
-	player:sendChatMessage("Goods Permit", 3, infoTimeRemainingMS, minutes, seconds)
+	player:sendChatMessage("Goods Permit", 3, Config.infoTimeRemainingMS, minutes, seconds)
 	onFirstUpdate = true
 end
 

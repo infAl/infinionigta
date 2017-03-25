@@ -8,9 +8,9 @@
 
 -- Include Files
 package.path = package.path .. ";data/scripts/mods/?.lua"
-require ("infinionigta/config")
+local Config = require ("infinionigta/config")
 
-if not disableMod then
+if not Config.disableMod then
 
 package.path = package.path .. ";data/scripts/lib/?.lua"
 require ("galaxy")
@@ -28,27 +28,14 @@ local scannerTicker = 0
 local scannerTick = 10
 
 local scannerStrength = 2
-local didScanFail
-local scannedPlayer
-local scanFailTicker = 0
 
 local suspicionDetectedTicker = 0
 
 
 -- This function is to allow a few seconds to pass between the player being warned that their ship is
 -- being scanned and being told that the scan failed
-function updateScanStatus(timestep)
-	scanFailTicker = scanFailTicker + timestep
-	if scanFailTicker < scannerTick then return end
-	scanFailTicker = 3
-	
-	if scannedPlayer and didScanFail then
-		-- A player's ship was scanned and the scan failed because of their cargo shielding
-		-- so let the player know.
-		scannedPlayer:sendChatMessage("", 3, scanFailed)
-		scannedPlayer = nil
-		didScanFail = false
-	end
+function onScanFailed(player)
+	player:sendChatMessage("", 3, Config.scanFailed)
 end
 
 
@@ -75,7 +62,6 @@ end
 function updateServer(timeStep)
     updateSuspiciousShipDetection(timeStep)
     updateSuspicionDetectedBehaviour(timeStep)
-	updateScanStatus(timeStep)
 end
 
 function updateSuspiciousShipDetection(timeStep)
@@ -118,34 +104,35 @@ function updateSuspiciousShipDetection(timeStep)
 				
 					-- Inform the player their ship is being scanned
 					local player = Player(ship.factionIndex)
-					player:sendChatMessage(self.title, 2, beingScanned, scannerStrength);
+					player:sendChatMessage(self.title, 2, Config.beingScanned, scannerStrength)
 					
 					--Does the target ship have cargo shielding?
 					local cargoShieldingFactor = 0
-					if ship:hasScript(scriptCargoShield) then
-						local _, cargoShieldingFactor = ship:invokeFunction(scriptCargoShield, "getShieldingFactor")
-						
+					if ship:hasScript(Config.scriptCargoShield) then
+					--printlog("AntiSmuggle Update Detect. HasCargoShieldcript")
+						local _, cargoShieldingFactor = ship:invokeFunction(Config.scriptCargoShield, "getShieldingFactor")
+						--if not cargoShieldingFactor then
+						--	ship:invokeFunction(Config.scriptCargoShield, "initialize")
+						--end
+
 						if cargoShieldingFactor > scannerStrength then
 							-- The target ship's shielding factor is better than this defender's
 							-- scanning factor so, 100% unable to see irregular goods.
-							didScanFail = true
-							scannedPlayer = player
+							deferredCallback(10, "onScanFailed", player)
 							return
 						else
 							local delta = scannerStrength - cargoShieldingFactor
 							math.randomseed(Sector().seed)
 							if delta < math.random(1, 10) then
 								-- Defender was unable to scan the target. Player got lucky!
-								didScanFail = true
-								scannedPlayer = player
+								deferredCallback(10, "onScanFailed", player)
 								return
 							end
 						end
 					end
 					
-					-- Does the ship have a dangerous goods transport permit?
-					local hasDangerousGoodsPermit = false
-					if ship:hasScript(scriptGoodsPermit) then
+					-- Does the player have a dangerous goods transport permit?
+					if Player(ship.factionIndex):hasScript(Config.scriptGoodsPermit) then
 						hasDangerousGoodsPermit = true
 					end
 					
@@ -167,12 +154,9 @@ function updateSuspiciousShipDetection(timeStep)
                             payment = 3.0
                         end
 
-                        if good.dangerous then
-							
-							if not hasDangerousGoodsPermit then
-								suspicion = suspicion or {type = 3}
-								payment = 1.5
-							end
+                        if good.dangerous and not hasDangerousGoodsPermit then
+							suspicion = suspicion or {type = 3}
+							payment = 1.5
                         end
 
                         -- make sure this craft is not yet suspected by another defender
@@ -253,9 +237,9 @@ function updateSuspicionDetectedBehaviour(timeStep)
 
         if suspicion.responded and self:getNearestDistance(suspicion.ship) < 80.0 then
             
-			-- Does the ship have a dangerous goods transport permit?
+			-- Does the player have a dangerous goods transport permit?
 			local hasDangerousGoodsPermit = false
-			if suspicion.ship:hasScript(scriptGoodsPermit) then
+			if Player(suspicion.ship.factionIndex):hasScript(Config.scriptGoodsPermit) then
 				hasDangerousGoodsPermit = true
 			end
 			
